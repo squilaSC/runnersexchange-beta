@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runners Exchange Mainz – Laufschuhe weitergeben statt wegwerfen</title>
+  <meta name="description" content="Fehlkauf im Schrank? Trag dich ein: Wir bringen kaum getragene Laufschuhe an den Fuß, dem sie passen. Aus Mainz, für Mainz: persönlich übergeben am Rheinufer oder im Laufladen.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .wl-hero{padding-block:48px 32px}
+    .wl-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
+    .countdown{display:flex;gap:10px;margin:18px 0}
+    .countdown div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;text-align:center;min-width:70px}
+    .countdown b{font-family:var(--display);font-size:1.6rem;display:block}
+    .role{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+    .progress{height:10px;background:#ebe9e3;border-radius:5px;overflow:hidden;margin:8px 0}
+    .progress i{display:block;height:100%;background:var(--accent);transition:width .6s}
+    .demand{display:flex;flex-direction:column;gap:8px}
+    .demand-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+    .demand-row b.n{font-family:var(--display);font-size:1.4rem;min-width:38px;color:var(--accent)}
+    .success{text-align:center}
+    .success .pos{font-family:var(--display);font-size:3rem;font-weight:900;color:var(--accent)}
+    .ref{display:flex;gap:8px;margin:12px 0}
+    .ref input{font-family:monospace;font-size:13px}
+    .partners{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .ticker{overflow:hidden;white-space:nowrap;background:var(--ink);color:#fff;padding:10px 0;font-size:14px}
+    .ticker span{display:inline-block;animation:tick 40s linear infinite;padding-left:100%}
+    @keyframes tick{to{transform:translateX(-100%)}}
+    @media (prefers-reduced-motion:reduce){.ticker span{animation:none;padding-left:16px}}
+    .src-banner{background:var(--green-soft);color:#0b6d36;text-align:center;padding:10px 16px;font-weight:600;font-size:14px}
+    .spots{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .spot{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+    .spot b{display:block}
+    .eco{background:#0f3d2a;color:#e6f4ec;border-radius:24px;padding:40px}
+    .eco .muted{color:#a7c7b6}
+    .eco-big{font-family:var(--display);font-size:clamp(2.4rem,6vw,4rem);font-weight:900;color:#7ee2a8;line-height:1}
+    .eco-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+    .eco-grid div{background:rgba(255,255,255,.06);border-radius:14px;padding:18px}
+    .founder{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+    .founder .av{width:84px;height:84px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font:900 28px var(--display)}
+    @media (max-width:960px){.wl-grid,.partners,.spots,.eco-grid{grid-template-columns:1fr}.eco{padding:26px}}
+  </style>
+</head>
+<body>
+  <div class="src-banner hidden" id="srcBanner"></div>
+  <div class="ticker" aria-hidden="true"><span id="ticker"></span></div>
+  <header class="topbar"><div class="wrap topbar-inner">
+    <a href="#" class="logo"><span class="logo-mark">RX</span><span class="logo-text">Runners<b>Exchange</b> <span class="muted" style="font-size:14px">Mainz</span></span></a>
+    <nav class="mainnav" id="mainnav" style="display:flex"><a href="#mainz">In Mainz</a><a href="#nachhaltig">Nachhaltig</a><a href="#nachfrage">Gesucht</a><a href="#partner">Für Läden & Vereine</a><a href="#faq">FAQ</a></nav>
+    <div class="topbar-actions"><a href="#form" class="btn btn-primary btn-sm" style="display:inline-flex">Eintragen</a></div>
+  </div></header>
+
+  <main>
+    <section class="wl-hero wrap"><div class="wl-grid">
+      <div>
+        <span class="pill pill-accent">📍 Aus Mainz, für Mainz · Start Frühjahr 2027</span>
+        <h1 style="margin-top:14px">Dein Fehlkauf ist <em style="font-style:normal;color:var(--accent)">jemandes Traumschuh.</em></h1>
+        <p class="lead muted" style="font-size:1.15rem;max-width:540px">Online bestellt, einmal gelaufen, passt nicht, und zurückschicken geht nicht mehr. Bei uns wechselt der Schuh den Besitzer, und zwar hier in Mainz: persönlich übergeben am Rheinufer, im Volkspark oder beim Laufladen um die Ecke. Kein Versand, kein Karton, kein Wegwerfen.</p>
+        <div class="countdown" id="countdown"></div>
+        <div class="panel" style="max-width:520px">
+          <div class="spread"><b><span id="total">0</span> Mainzer:innen dabei</b><span class="small muted">Ziel für den Start: 1.000</span></div>
+          <div class="progress"><i id="bar" style="width:0"></i></div>
+          <div class="small muted"><span id="sellers">0</span> Paar Schuhe schon angekündigt · <span id="buyers">0</span> Suchaufträge</div>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:22px;max-width:560px">
+          <div><b>🎁 0 % Provision</b><div class="small muted">für die ersten 500 Verkäufer, 3 Monate lang</div></div>
+          <div><b>🌱 <span id="co2Hero">0</span> kg CO₂e</b><div class="small muted">Einsparpotenzial der angekündigten Paare</div></div>
+          <div><b>🤝 Persönlich</b><div class="small muted">Anprobieren vor Ort, Übergabe in deinem Viertel</div></div>
+        </div>
+      </div>
+
+      <div class="panel" id="form">
+        <div id="formWrap">
+          <h2>Jetzt vormerken</h2>
+          <div class="role" id="role">
+            <button type="button" class="choice on" data-role="buy"><b>🔍 Ich suche</b><span class="small muted">Sag uns, was du brauchst</span></button>
+            <button type="button" class="choice" data-role="sell"><b>👟 Ich biete an</b><span class="small muted">Fehlkauf im Schrank</span></button>
+          </div>
+          <form id="wlForm" novalidate>
+            <div class="form-grid">
+              <label class="field"><span>Marke</span><select name="brand" id="brand"></select></label>
+              <label class="field"><span>Modell <span class="muted">(optional)</span></span><input type="text" name="model" list="models" placeholder="z. B. Vaporfly 3"></label>
+              <label class="field"><span>Größe (EU)</span><select name="size" id="size"></select></label>
+              <label class="field"><span>PLZ</span><input type="text" name="plz" inputmode="numeric" maxlength="5" placeholder="55116" required></label>
+            </div>
+            <label class="field sell-only hidden"><span>Wunschpreis (€, unverbindlich)</span><input type="number" name="price" min="1" placeholder="120"></label>
+            <label class="field sell-only hidden"><span>Zustand</span><select name="cond"><option>Neu / nur anprobiert</option><option>1× getragen</option><option>Wenig getragen (max. 50 km)</option></select></label>
+            <label class="field sell-only hidden"><span>Nass oder im Regen getragen? <span style="color:var(--accent)">*</span></span><select name="wet"><option value="">Bitte wählen</option><option value="false">☀ Nein, nur trocken</option><option value="true">💧 Ja, nass / Regen</option></select></label>
+            <p class="small muted sell-only hidden" style="margin-top:-6px">Wir nehmen nur Schuhe mit höchstens 50 km Laufleistung.</p>
+            <label class="field"><span>E-Mail</span><input type="email" name="email" placeholder="du@beispiel.de" required></label>
+            <label class="field"><span>Verein / Lauftreff <span class="muted">(optional, für die Vereins-Challenge)</span></span><input type="text" name="club" list="clubs" placeholder="z. B. Tri-Team Mainz"></label>
+            <label class="check small"><input type="checkbox" name="consent" required> <span>Ich möchte zum Start und bei passenden Treffern per E-Mail benachrichtigt werden. Abmeldung jederzeit möglich (<a href="#faq" style="text-decoration:underline">Datenschutz</a>).</span></label>
+            <p class="small" id="err" style="color:#c0392b;min-height:1.2em;margin:8px 0"></p>
+            <button class="btn btn-primary btn-block" id="submit">Auf die Warteliste</button>
+          </form>
+          <datalist id="models"></datalist>
+          <datalist id="clubs"><option>Tri-Team Mainz</option><option>Lauftreff Mainz</option><option>USC Mainz</option><option>Lauftreff Gonsenheim</option><option>Uni-Sport Mainz</option><option>Laufgruppe Mombach</option></datalist>
+        </div>
+        <div id="successWrap" class="success hidden"></div>
+      </div>
+    </div></section>
+
+    <section class="section wrap" id="mainz">
+      <div class="spread"><div><span class="pill pill-accent">📍 Mainz zuerst</span><h2 style="margin-top:10px">Übergabe da, wo du sowieso läufst</h2></div></div>
+      <p class="muted" style="max-width:720px">Wir starten bewusst nicht deutschlandweit, sondern in Mainz. So kannst du den Schuh vor dem Kauf anprobieren, lernst die Person dahinter kennen, und der Schuh muss nicht quer durchs Land geschickt werden. Versand gibt es trotzdem, für alle, die es eilig haben.</p>
+      <div class="spots" style="margin-top:18px">
+        <div class="spot">🌊<b>Rheinufer / Winterhafen</b><span class="small muted">Klassiker für die Übergabe nach dem Lauf, gut erreichbar aus Altstadt und Neustadt</span></div>
+        <div class="spot">🌳<b>Volkspark</b><span class="small muted">Für Oberstadt, Weisenau und Hechtsheim</span></div>
+        <div class="spot">🎓<b>Uni-Campus</b><span class="small muted">Zwischen zwei Vorlesungen, für Studis und Uni-Sport</span></div>
+        <div class="spot">🌲<b>Gonsenheimer Wald / Lennebergwald</b><span class="small muted">Für Trailrunner aus Gonsenheim, Finthen und Mombach</span></div>
+        <div class="spot">🏟<b>Bruchwegstadion / Hartenberg</b><span class="small muted">Nah an Bahn und Sportplätzen</span></div>
+        <div class="spot">🏪<b>Partner-Laufläden</b><span class="small muted">Abgabe & Abholung zu Ladenöffnungszeiten, inklusive Beratung. Partner werden gesucht!</span></div>
+      </div>
+      <div class="panel founder" style="margin-top:24px">
+        <div class="av">K</div>
+        <div><b>Hinter Runners Exchange steht kein Konzern, sondern ein Läufer aus Mainz.</b>
+          <p class="muted" style="margin:6px 0 0">„Ich bin Triathlet und laufe hier jede Woche am Rhein. Ich hatte selbst drei Paar Fehlkäufe im Schrank, die ich nicht zurückgeben konnte. Und jedes Mal dachte ich: Irgendwer in Mainz sucht genau diesen Schuh. Diese Plattform soll die beiden zusammenbringen.“ Karsten, Gründer</p></div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="nachhaltig">
+      <div class="eco">
+        <span class="pill" style="background:rgba(126,226,168,.15);color:#7ee2a8">🌱 Nachhaltig laufen</span>
+        <div class="two-col" style="margin-top:14px;align-items:center">
+          <div><h2>Der nachhaltigste Laufschuh ist der, der schon existiert.</h2>
+            <p class="muted">Die Herstellung eines Paars Laufschuhe verursacht rund <b style="color:#fff">14 kg CO₂e</b> (MIT-Studie, 2013). Ein Paar, das im Schrank liegt, hat diese Emissionen umsonst verursacht. Jedes Paar, das bei uns einen neuen Fuß findet, ersetzt im besten Fall einen Neukauf.</p></div>
+          <div style="text-align:center"><div class="eco-big"><span id="co2Big">0</span> kg</div><div class="muted">CO₂e, die schon angekündigte Paare einsparen können</div>
+            <div class="small muted" style="margin-top:6px">≈ <span id="co2Km">0</span> km Autofahrt</div></div>
+        </div>
+        <div class="eco-grid">
+          <div><b>🤝 Übergabe statt Paket</b><p class="muted small" style="margin:6px 0 0">In Mainz übergeben: keine Versandkartons, keine Lieferwagen, kein Rückversand.</p></div>
+          <div><b>♻️ Nichts landet im Müll</b><p class="muted small" style="margin:6px 0 0">Findet ein Paar nach 60 Tagen keinen Käufer, kann es mit einem Klick an ein Mainzer Sozialprojekt gespendet werden.</p></div>
+          <div><b>🏃 Ausgelaufen? Recycling</b><p class="muted small" style="margin:6px 0 0">Durchgelaufene Schuhe nehmen Partner-Laufläden zur Sammlung für das Recycling an.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="nachfrage">
+      <div class="two-col">
+        <div>
+          <h2>Das wird gerade gesucht</h2>
+          <p class="muted">Diese Modelle stehen in der Region auf der Wunschliste. Liegt eins davon bei dir im Schrank? Trag es ein, und die Käufer warten schon.</p>
+          <div class="demand" id="demand"></div>
+        </div>
+        <div>
+          <h2>🏆 Schrank-Challenge</h2>
+          <p class="muted">Welcher Verein bringt die meisten Fehlkäufe zurück auf die Straße? Der Gewinnerverein bekommt zum Start <b>500 € für die Vereinskasse</b>.</p>
+          <div class="panel"><div class="list" id="clubsBoard"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="partner">
+      <h2>Für Laufläden, Vereine & Veranstalter</h2>
+      <div class="partners">
+        <div class="step"><div class="step-num">🏪</div><h3>Laufläden</h3><p class="muted">Rückläufer, Testschuhe und Einzelpaare als zusätzlicher Absatzweg. Eigene Shopseite, reduzierte Provision, und die Kundschaft kommt zu dir zur Beratung.</p></div>
+        <div class="step"><div class="step-num">🏃</div><h3>Vereine & Lauftreffs</h3><p class="muted">Schrank-Challenge, Vereinsseite und 1 € pro Verkauf deiner Mitglieder in die Vereinskasse.</p></div>
+        <div class="step"><div class="step-num">🏁</div><h3>Veranstalter</h3><p class="muted">Tausch-Stand bei der Startunterlagenausgabe. Zum Beispiel beim Gutenberg-Marathon. Die Läufer bekommen den passenden Schuh, dein Event bekommt ein echtes Nachhaltigkeitsthema.</p></div>
+      </div>
+      <form class="panel" id="partnerForm" style="margin-top:18px">
+        <div class="form-grid">
+          <label class="field"><span>Organisation</span><input type="text" name="org" required placeholder="Laufladen / Verein / Event"></label>
+          <label class="field"><span>Art</span><select name="type"><option>Laufladen</option><option>Verein / Lauftreff</option><option>Veranstalter</option><option>Sonstiges</option></select></label>
+          <label class="field"><span>Ansprechperson</span><input type="text" name="name" required></label>
+          <label class="field"><span>E-Mail</span><input type="email" name="email" required></label>
+        </div>
+        <button class="btn btn-dark">Partnerschaft anfragen</button>
+      </form>
+    </section>
+
+    <section class="section wrap" id="faq" style="max-width:800px">
+      <h2>Fragen</h2>
+      <details><summary>Wann geht es los?</summary><p>Im Frühjahr 2027, zuerst in Mainz. Wiesbaden folgt kurz danach. Alle auf der Warteliste bekommen 48 Stunden früher Zugang.</p></details>
+      <details><summary>Warum nur Mainz?</summary><p>Ein Marktplatz funktioniert nur, wenn Angebot und Nachfrage zusammenkommen. In einer Stadt geht das schneller als in ganz Deutschland. Außerdem kann man sich persönlich treffen und anprobieren, das schafft Vertrauen und spart den Versand.</p></details>
+      <details><summary>Was kostet es?</summary><p>Einstellen ist immer kostenlos. Für die ersten 500 Verkäufer entfällt die Provision 3 Monate lang, danach sind es 5 %. Käufer zahlen einen kleinen Käuferschutz-Beitrag.</p></details>
+      <details><summary>Was bringt es, mich weiterzuempfehlen?</summary><p>Jede Person, die sich über deinen Link einträgt, bringt dich 10 Plätze nach vorn. Ab 3 Empfehlungen bekommst du einen kostenlosen Boost für dein erstes Inserat.</p></details>
+      <details><summary>Was passiert mit meinen Daten?</summary><p>Wir nutzen deine E-Mail ausschließlich, um dich über den Start und passende Treffer zu informieren. Keine Weitergabe an Dritte, Abmeldung mit einem Klick. (Platzhalter: vollständige Datenschutzerklärung folgt.)</p></details>
+      <details><summary>Wie nachhaltig ist das wirklich?</summary><p>Der größte Hebel ist, dass kein neuer Schuh produziert werden muss. Die 14 kg CO₂e pro Paar stammen aus einer MIT-Studie (Cheah et al., 2013). Unsere Anzeige ist eine Schätzung, nicht jeder Kauf ersetzt einen Neukauf. Wir rechnen trotzdem lieber offen, als grün zu färben.</p></details>
+      <details><summary>Welche Schuhe darf ich anbieten?</summary><p>Nur Schuhe mit höchstens 50 km Laufleistung. Bei jedem Paar gibst du an, ob es nass oder im Regen getragen wurde. Das sehen Käufer sofort auf dem Inserat.</p></details>
+      <details><summary>Nur Laufschuhe?</summary><p>Zum Start konzentrieren wir uns auf Lauf-, Trail- und Wettkampfschuhe. Spikes, Radschuhe und Bekleidung folgen.</p></details>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-bottom muted" style="border:0;margin:0;padding:0">© 2026 Runners Exchange (Arbeitstitel) · <a href="index.html" style="display:inline">Vorschau des Marktplatzes</a> · Impressum · Datenschutz</div></footer>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="js/warteliste.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+ "laufschuhe": {
+  "author": "mostafa mahmoudi",
+  "link": "https://unsplash.com/photos/a-close-up-of-a-shoe-on-a-white-background-P_RXel_thDA"
+ },
+ "trail": {
+  "author": "Stockholm Paris Studio",
+  "link": "https://unsplash.com/photos/a-pair-of-shoes-with-blue-laces-on-them-2EKDKi3cxtk"
+ },
+ "spikes": {
+  "author": "Rohit Dey",
+  "link": "https://unsplash.com/photos/a-pair-of-pink-and-orange-shoes-next-to-a-pair-of-black-and-yellow-shoes-jzi_LTIZXVE"
+ },
+ "rad": {
+  "author": "RJ Trazona",
+  "link": "https://unsplash.com/photos/a-close-up-of-a-shoe-on-a-pile-of-rocks-jQnXyLZyOFc"
+ },
+ "bekleidung": {
+  "author": "TuanAnh Blue",
+  "link": "https://unsplash.com/photos/a-group-of-five-t-shirts-sitting-on-top-of-each-other-LsJOJARK1Jk"
+ },
+ "zubehoer": {
+  "author": "Adrian Regeci",
+  "link": "https://unsplash.com/photos/an-apple-watch-with-a-black-and-white-band-PBo0Ps8nBYs"
+ },
+ "hero (img/hero.jpg)": {
+  "author": "Luis Felipe Lins",
+  "link": "https://unsplash.com/photos/white-and-orange-athletic-sneaker-LG88A2XgIXY"
+ },
+ "_hinweis": "Alle Bilder farblich angeglichen (ImageMagick: -modulate 101,62,100 +level-colors #221c17,#f7f2ea)"
+}
