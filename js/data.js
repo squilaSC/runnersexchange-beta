@@ -5,14 +5,12 @@
 //  1) Käuferschutz (zahlt Käufer): prozentual + Fixbetrag
 //  2) Verkaufsprovision (zahlt Verkäufer): kleiner Prozentsatz, mit Mindestbetrag
 //  3) Tauschgebühr: Pauschale je Partei inkl. Tausch-Treuhand
-//  4) Optional: Boost/Hervorheben eines Inserats
 const FEES = {
   buyerProtectionPct: 0.05,
   buyerProtectionFix: 0.70,
   sellerCommissionPct: 0.05,
   sellerCommissionMin: 1.00,
   swapFeePerParty: 2.49,
-  boostPrice: 1.99,
   shipping: { dhl: { label: "DHL Paket (versichert)", price: 5.49 }, hermes: { label: "Hermes S", price: 4.50 }, pickup: { label: "Persönliche Übergabe", price: 0 } }
 };
 
@@ -33,13 +31,26 @@ const CONDITIONS = {
 };
 
 // Plattformregel: Schuhe nur bis max. 50 km Laufleistung
-const MAX_KM = 50;
+let MAX_KM = 50;
 // Geschätzte Lebensdauer eines Laufschuhs, nur für die Anzeige der Restlaufleistung
-const SHOE_LIFE_KM = 600;
+let SHOE_LIFE_KM = 600;
+
+// Texte & Kennzahlen, die im Admin-Bereich änderbar sind
+const SITE = {
+  typerWords: ["Tausch ihn.", "Verkauf ihn.", "Gib ihn weiter."],
+  subline: "Bloß nicht wegwerfen.",
+  stats: [["12.480", "Paar gewechselt"], ["Ø 46 %", "unter Neupreis"], ["4,9 ★", "Bewertung"]],
+  launch: "2027-03-15T10:00",
+  goal: 1000,
+  promoSellers: 500,
+  promoMonths: 3
+};
 // Pflichtangabe bei Schuhen: wet = true (nass/Regen getragen) | false (nur trocken)
+// Icons im Linienstil der Kategorie-Icons, Farbe über currentColor
+const WET_SVG = body => `<svg class="wet-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 const WET = {
-  false: { label: "Nur trocken getragen", short: "Nur trocken", icon: "☀" },
-  true: { label: "Nass / im Regen getragen", short: "Nass getragen", icon: "💧" }
+  false: { label: "Nur trocken getragen", short: "Nur trocken", icon: WET_SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>') },
+  true: { label: "Nass / im Regen getragen", short: "Nass getragen", icon: WET_SVG('<path d="M12 3c3.3 4.2 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.7-6.8 6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>') }
 };
 
 const SELLERS = {

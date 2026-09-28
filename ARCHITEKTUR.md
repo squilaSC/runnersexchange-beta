@@ -75,7 +75,7 @@ API und Worker sind dasselbe Container-Image, nur mit anderem Startbefehl.
 | **messaging** | Unterhaltungen, Nachrichten, Systemnachrichten, WebSocket | Nachrichten |
 | **reviews** | Bewertungen nach Abschluss, Durchschnittswerte | Verkäuferprofil |
 | **notifications** | E-Mail, Push, In-App; ausgelöst durch Domain-Events | Suchauftrag, Match-Hinweise |
-| **admin** | Moderation, Streitfälle, Gebührenreport, Sperren | (eigenes Admin-UI, später) |
+| **admin** | Plattform-Konfiguration (Gebühren, Regeln, Texte), Moderation, Sperren, Streitfälle, Änderungsprotokoll | Admin (`#/admin`, siehe Abschnitt 8) |
 
 **Regel:** Module sprechen nur über ihre Service-Schnittstelle oder über Domain-Events miteinander, nie direkt in fremde Tabellen.
 
@@ -129,7 +129,6 @@ erDiagram
     text kind "sale|swap|both"
     text[] want_sizes
     text status "draft|live|reserved|sold|swapped|removed"
-    timestamptz boosted_until
     tsvector search
   }
   ORDER {
@@ -215,7 +214,7 @@ Beide Inserate sind ab `accepted` reserviert.
 POST   /auth/magic-link              GET  /me              PATCH /me
 GET    /listings?q=&cat=&size=&cond=&kind=&max=&sort=&cursor=
 GET    /listings/:id                 POST /listings        PATCH /listings/:id
-POST   /listings/:id/photos/upload-url                     POST  /listings/:id/boost
+POST   /listings/:id/photos/upload-url
 POST   /listings/:id/offers          POST /offers/:id/accept|decline
 GET    /matches                      (Tausch-Matches zu my_sizes)
 POST   /swaps                        POST /swaps/:id/accept|decline|counter|confirm
@@ -256,7 +255,62 @@ Käufer zahlt 111,19 €  = 100,00 Artikel + 5,70 Käuferschutz + 5,49 Versand
  └─ Plattform:     10,70 €   brutto, abzgl. PSP-Gebühren (~1,5 % + 0,25 €) ≈ 9,00 € netto
 ```
 
-## 8. Querschnittsthemen
+## 8. Admin-Bereich & Plattform-Konfiguration
+
+Das Frontend hat bereits eine Admin-Seite (`#/admin`). In der Demo speichert sie Änderungen nur im Browser (`localStorage`), und `js/config.js` legt sie beim Laden über die Standardwerte. Mit Backend schreibt die Admin-Seite stattdessen über die API in die Datenbank, und die Änderungen gelten sofort für alle Nutzer.
+
+### Was die Admin-Seite im Backend verändert
+
+| Bereich | Wirkung im Backend | Endpunkt |
+|---|---|---|
+| Gebühren, Versandpreise | Neue Version in `platform_config` (Schlüssel `fees`) mit `valid_from` | `PUT /admin/config/fees` |
+| Plattformregeln (max. km, Lebensdauer) | Konfigurationswert `rules`; die Validierung beim Inserieren liest ihn serverseitig | `PUT /admin/config/rules` |
+| Kategorien | `category.name`, `category.active` | `PATCH /admin/categories/:id` |
+| Inserate | `listing.status = 'removed'` mit Moderationsgrund, oder Preisänderung | `PATCH /admin/listings/:id` |
+| Nutzer | `user.blocked_at` + Grund; Sessions werden beendet, Inserate ausgeblendet | `POST /admin/users/:id/block`, `…/unblock` |
+| Startseite, Warteliste | Konfigurationswerte `site` (Texte, Kennzahlen, Startdatum, Ziel, Aktion) | `PUT /admin/config/site` |
+| Übersicht | Nur lesend: Kennzahlen aus Inseraten, Bestellungen und Ledger | `GET /admin/stats` |
+
+Öffentliche Seiten laden die Konfiguration über `GET /config` (kurz gecacht, z. B. 60 s). Im Frontend müssen dafür nur `adminStore.load()` und `adminStore.save()` in `js/config.js` durch API-Aufrufe ersetzt werden.
+
+### Datenmodell
+
+```mermaid
+erDiagram
+  PLATFORM_CONFIG {
+    text key PK "fees | rules | site"
+    int version PK
+    jsonb value
+    timestamptz valid_from
+    uuid changed_by FK
+  }
+  ADMIN_AUDIT_LOG {
+    uuid id PK
+    uuid admin_id FK
+    text action "config.update | listing.remove | user.block ..."
+    text target_type
+    text target_id
+    jsonb before
+    jsonb after
+    text reason
+    timestamptz created_at
+  }
+  USER ||--o{ ADMIN_AUDIT_LOG : "führt aus"
+  USER ||--o{ PLATFORM_CONFIG : "ändert"
+```
+
+- **Versioniert statt überschrieben:** Jede Änderung ist eine neue Version. So ist nachvollziehbar, welche Gebühren wann galten, und man kann zurückrollen.
+- **Gebühren nur für die Zukunft:** Bestellungen speichern ihre Gebühren beim Kauf (siehe Abschnitt 4). Eine Änderung betrifft nur neue Verkäufe, nie laufende Bestellungen oder Tausche.
+
+### Absicherung
+
+- **Rolle `admin`** am Nutzerkonto; alle `/admin/*`-Endpunkte prüfen sie serverseitig. Zwei-Faktor-Anmeldung (Passkey oder TOTP) ist Pflicht.
+- **Serverseitige Grenzen**, z. B. Provision 0–20 %, Käuferschutz 0–15 %, max. km 1–500. Die Admin-Seite prüft zusätzlich, aber verlässlich ist nur der Server.
+- **Änderungsprotokoll** für jede Aktion (wer, wann, vorher/nachher, Grund). Pflicht für Sperrungen und entfernte Inserate wegen der Begründungspflicht im Digital Services Act; die betroffene Person erhält die Begründung per E-Mail.
+- **Kritische Änderungen bestätigen:** Gebührenänderungen zeigen vor dem Speichern eine Vorschau („Einnahme bei 100 € vorher/nachher“) und brauchen eine zweite Bestätigung.
+- **Aktive Tausche und Bestellungen** gesperrter Nutzer werden nicht automatisch abgebrochen, sondern landen als Fall in der Moderation.
+
+## 9. Querschnittsthemen
 
 **Sicherheit**
 - Sessions als HttpOnly/SameSite-Cookie, CSRF-Schutz, Rate-Limit (Login, Nachrichten, Angebote)
@@ -275,7 +329,7 @@ Käufer zahlt 111,19 €  = 100,00 Artikel + 5,70 Käuferschutz + 5,49 Versand
 - Tägliche Postgres-Backups (pgBackRest oder CloudNativePG), Wiederherstellung regelmäßig testen
 - Health-Endpoints `/healthz` und `/readyz` für k3s-Probes
 
-## 9. Deployment auf k3s
+## 10. Deployment auf k3s
 
 ```mermaid
 flowchart TB
@@ -302,7 +356,7 @@ flowchart TB
 - CI: Tests → Image bauen → Migrationen als Job vor dem Rollout → Rollout
 - Die PSP-Webhooks brauchen eine öffentlich erreichbare URL. Falls der Cluster zu Hause läuft: Cloudflare Tunnel o. Ä.
 
-## 10. Projektstruktur
+## 11. Projektstruktur
 
 ```
 backend/
@@ -322,13 +376,13 @@ backend/
   openapi.json
 ```
 
-## 11. Umsetzungsreihenfolge
+## 12. Umsetzungsreihenfolge
 
 | Phase | Inhalt | Ergebnis |
 |---|---|---|
 | **1 – MVP Kaufen** | identity, catalog, pricing, einfache Suche, orders, Stripe Connect, manuelle Versandnummer, E-Mail | Man kann echt kaufen und verkaufen |
 | **2 – Vertrauen** | Versandlabel-API + Tracking, Bewertungen, Chat, Reklamation, Admin-Moderation | Käuferschutz läuft automatisch |
 | **3 – Tausch** | swaps inkl. Treuhand-Aufpreis, Größen-Matching, Suchaufträge, Push | Alleinstellungsmerkmal live |
-| **4 – Wachstum** | Meilisearch, Boost, DAC7-Report, Auswertungen, ggf. App | Skalierung und zusätzliche Einnahmen |
+| **4 – Wachstum** | Meilisearch, DAC7-Report, Auswertungen, ggf. App | Skalierung und zusätzliche Einnahmen |
 
 Tauschen erst in Phase 3, weil es die komplexeste Geldlogik hat (zwei Pakete, zwei Zahlungen, Aufpreis) und auf allen Bausteinen aus Phase 1 und 2 aufsetzt.

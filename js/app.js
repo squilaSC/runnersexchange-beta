@@ -102,11 +102,11 @@
     <section class="hero wrap"><div class="hero-grid">
       <div>
         <span class="pill pill-accent">Fehlkauf? Kein Problem.</span>
-        <h1 style="margin-top:14px" aria-label="Passt nicht? Tausch ihn, verkauf ihn oder gib ihn weiter. Bloß nicht wegwerfen.">Passt nicht?<br><span class="typer" aria-hidden="true"><em id="typer">Tausch ihn.</em><span class="caret"></span></span><br><span aria-hidden="true">Bloß nicht wegwerfen.</span></h1>
+        <h1 style="margin-top:14px" aria-label="Passt nicht? ${esc(SITE.typerWords.join(" "))} ${esc(SITE.subline)}">Passt nicht?<br><span class="typer" aria-hidden="true"><em id="typer">${esc(SITE.typerWords[0])}</em><span class="caret"></span></span><br><span aria-hidden="true">${esc(SITE.subline)}</span></h1>
         <p class="lead">Die Börse für kaum getragene Lauf- und Sportschuhe. Einmal gelaufen, nicht mehr zurückzugeben: Hier findet dein Schuh jemanden, dem er passt.</p>
         <form class="searchbar" id="heroSearch"><input type="search" name="q" placeholder="Marke, Modell oder Größe, z. B. „Vaporfly 43“"><button class="btn btn-primary">Suchen</button></form>
         <div class="row"><a class="btn btn-dark" href="#/verkaufen">Schuh inserieren – kostenlos</a><a class="btn" href="#/tausch">Tauschbörse ansehen</a></div>
-        <div class="hero-stats"><div><b>12.480</b><span class="muted small">Paar gewechselt</span></div><div><b>Ø 46 %</b><span class="muted small">unter Neupreis</span></div><div><b>4,9 ★</b><span class="muted small">Bewertung</span></div></div>
+        <div class="hero-stats">${SITE.stats.map(([v, t]) => `<div><b>${esc(v)}</b><span class="muted small">${esc(t)}</span></div>`).join("")}</div>
       </div>
       <div class="hero-art"><img src="img/hero.jpg" alt="Weiß-orangener Laufschuh" width="1100" height="990">
         <div class="hero-chip c1"><span class="muted">Nur 1× getragen</span><b>EU 43 · −45 %</b></div>
@@ -163,7 +163,7 @@
         <h4>Zustand</h4>
         ${Object.entries(CONDITIONS).map(([k, c]) => `<label class="check"><input type="checkbox" data-f="conds" value="${k}" ${market.conds.includes(k) ? "checked" : ""}> ${c.label}</label>`).join("")}
         <h4>Nässe</h4>
-        <label class="check"><input type="checkbox" id="fdry" ${market.dryOnly ? "checked" : ""}> ☀ Nur trocken getragene Schuhe</label>
+        <label class="check"><input type="checkbox" id="fdry" ${market.dryOnly ? "checked" : ""}> ${WET[false].icon} Nur trocken getragene Schuhe</label>
         <h4>Geschlecht</h4>
         <select id="fg"><option value="">Alle</option>${["Damen", "Herren", "Unisex"].map(g => `<option ${market.gender === g ? "selected" : ""}>${g}</option>`).join("")}</select>
         <h4>Max. Preis: <span id="pv">${eur(market.maxPrice)}</span></h4>
@@ -425,7 +425,7 @@
   }
 
   /* Verkaufen – Wizard */
-  const draft = { step: 0, cat: "laufschuhe", brand: "", model: "", size: 43, gender: "Herren", cond: "einmal", km: 5, wet: null, reason: "", kind: "both", wantSizes: [], price: 90, retail: 160, photos: 0, boost: false, ship: "dhl" };
+  const draft = { step: 0, cat: "laufschuhe", brand: "", model: "", size: 43, gender: "Herren", cond: "einmal", km: 5, wet: null, reason: "", kind: "both", wantSizes: [], price: 90, retail: 160, photos: 0, ship: "dhl" };
   pages.verkaufen = () => {
     const steps = ["Artikel", "Zustand", "Fotos", "Angebot", "Vorschau"];
     const d = draft;
@@ -459,8 +459,7 @@
         <div class="notice" id="priceHint"></div>
         ${d.kind !== "sale" ? `<h4 style="margin-top:18px">Gewünschte Größen im Tausch</h4><div class="sizes">${[40, 41, 42, 42.5, 43, 43.5, 44, 44.5, 45, 46].map(s => `<button class="size-btn ${d.wantSizes.includes(s) ? "on" : ""}" data-want="${s}">${String(s).replace(".", ",")}</button>`).join("")}</div>` : ""}
         <h4 style="margin-top:18px">Versand</h4>
-        <div class="choice-grid">${Object.entries(FEES.shipping).map(([k, s]) => `<button class="choice ${d.ship === k ? "on" : ""}" data-set="ship" data-val="${k}"><b>${s.label}</b><span class="small muted">${s.price ? eur(s.price) + " (zahlt Käufer)" : "kostenlos"}</span></button>`).join("")}</div>
-        <label class="check" style="margin-top:16px"><input type="checkbox" id="boost" ${d.boost ? "checked" : ""}> 🚀 <b>Boost</b>: 7 Tage oben in Suche & Matches (${eur(FEES.boostPrice)})</label>`,
+        <div class="choice-grid">${Object.entries(FEES.shipping).map(([k, s]) => `<button class="choice ${d.ship === k ? "on" : ""}" data-set="ship" data-val="${k}"><b>${s.label}</b><span class="small muted">${s.price ? eur(s.price) + " (zahlt Käufer)" : "kostenlos"}</span></button>`).join("")}</div>`,
       () => {
         const pv = { ...d, id: 0, colors: ["#e8e8e8", "#ff5a1f"], seller: "me" };
         return `<h2>Vorschau</h2><div class="grid" style="grid-template-columns:240px 1fr;gap:20px;align-items:start">
@@ -468,8 +467,7 @@
           <div><table class="breakdown">
             <tr><td>Verkaufspreis</td><td>${eur(+d.price)}</td></tr>
             <tr class="fee"><td>Provision (${Math.round(FEES.sellerCommissionPct * 100)} %, min. ${eur(FEES.sellerCommissionMin)}) – nur bei Verkauf</td><td>−${eur(sellerFee(+d.price))}</td></tr>
-            ${d.boost ? `<tr class="fee"><td>Boost (einmalig)</td><td>−${eur(FEES.boostPrice)}</td></tr>` : ""}
-            <tr class="total"><td>Deine Auszahlung</td><td>${eur(payout(+d.price) - (d.boost ? FEES.boostPrice : 0))}</td></tr>
+            <tr class="total"><td>Deine Auszahlung</td><td>${eur(payout(+d.price))}</td></tr>
           </table>
           <p class="small muted" style="margin-top:12px">Käuferschutz (${eur(buyerFee(+d.price))}) und Versand zahlt der Käufer. Einstellen ist kostenlos.</p>
           <label class="check small"><input type="checkbox" id="agb"> Ich bestätige, dass die Angaben stimmen und akzeptiere die AGB.</label></div></div>`;
@@ -502,7 +500,6 @@
       if (k === "km") $("#kmv").textContent = d.km + " km";
       hint();
     });
-    $("#boost")?.addEventListener("change", e => d.boost = e.target.checked);
     $("#back").addEventListener("click", () => { d.step--; render(); });
     $("#next").addEventListener("click", () => {
       if (d.step === 0 && (!d.brand || !d.model)) return toast("Bitte Marke und Modell angeben.");
@@ -512,7 +509,7 @@
       if (d.step === 4) {
         if (!$("#agb").checked) return toast("Bitte AGB bestätigen.");
         state.myListings.unshift({ id: Date.now(), brand: d.brand, model: d.model, size: d.size, price: +d.price, cond: d.cond, wet: d.wet, kind: d.kind, status: "live", views: 0, favs: 0, colors: ["#e8e8e8", "#ff5a1f"] });
-        save(); Object.assign(d, { step: 0, brand: "", model: "", photos: 0, reason: "", boost: false, wet: null, km: 5 });
+        save(); Object.assign(d, { step: 0, brand: "", model: "", photos: 0, reason: "", wet: null, km: 5 });
         toast("🎉 Dein Inserat ist online!"); location.hash = "#/konto/inserate"; return;
       }
       d.step++; render();
@@ -607,7 +604,7 @@
     const listRow = m => `<div class="list-item"><div class="list-thumb" style="${bgFor(m)}">${shoe(m)}</div>
       <div class="list-main"><b>${esc(m.brand)} ${esc(m.model)}</b> <span class="status ${statusMap[m.status][0]}">${statusMap[m.status][1]}</span>
       <div class="small muted">EU ${m.size} · ${typeof m.wet === "boolean" ? WET[m.wet].icon + " " + WET[m.wet].short + " · " : ""}${eur(m.price)} · 👁 ${m.views} · ♡ ${m.favs}</div></div>
-      ${m.status === "live" ? `<button class="btn btn-sm" data-boost="${m.id}">🚀 Boost</button><button class="btn btn-sm btn-ghost" data-del="${m.id}">Löschen</button>` : m.status === "pending" ? `<button class="btn btn-sm btn-primary" data-label>Versandlabel</button>` : ""}</div>`;
+      ${m.status === "live" ? `<button class="btn btn-sm btn-ghost" data-del="${m.id}">Löschen</button>` : m.status === "pending" ? `<button class="btn btn-sm btn-primary" data-label>Versandlabel</button>` : ""}</div>`;
     const content = {
       uebersicht: () => `<div class="kpis">
           <div class="kpi"><span class="muted small">Guthaben</span><b>${eur(ME.balance)}</b><a class="small" style="color:var(--accent)" href="#/konto/einstellungen">Auszahlen →</a></div>
@@ -644,9 +641,8 @@
   };
   function bindKonto(_, tab) {
     app.addEventListener("click", e => {
-      const del = e.target.closest("[data-del]"), boost = e.target.closest("[data-boost]");
+      const del = e.target.closest("[data-del]");
       if (del) { state.myListings = state.myListings.filter(m => m.id !== +del.dataset.del); save(); render(); toast("Inserat gelöscht."); }
-      if (boost) toast(`Boost für ${eur(FEES.boostPrice)} aktiviert – 7 Tage ganz oben.`);
       if (e.target.closest("[data-label]")) toast("Versandlabel als PDF erstellt (Demo).");
       if (e.target.closest("[data-confirm]")) toast("Danke! Verkäufer wird jetzt ausgezahlt. Bitte bewerten.");
       if (e.target.closest("[data-savesettings]")) toast("Einstellungen gespeichert.");
@@ -724,7 +720,6 @@
       <div class="panel" style="margin:0"><span class="pill">Verkäufer</span><h2 style="margin-top:10px">${Math.round(FEES.sellerCommissionPct * 100)} %</h2><p class="muted">Provision auf den Verkaufspreis, mind. ${eur(FEES.sellerCommissionMin)}. Nur bei Verkauf.</p></div>
       <div class="panel" style="margin:0"><span class="pill">Käufer</span><h2 style="margin-top:10px">${FEES.buyerProtectionPct * 100} % + ${eur(FEES.buyerProtectionFix)}</h2><p class="muted">Käuferschutz inkl. Treuhand, Zahlungsabwicklung und Support.</p></div>
       <div class="panel" style="margin:0"><span class="pill pill-blue">Tausch</span><h2 style="margin-top:10px">${eur(FEES.swapFeePerParty)}</h2><p class="muted">Pro Person, inkl. Tausch-Treuhand. Aufpreise ohne Provision.</p></div>
-      <div class="panel" style="margin:0"><span class="pill pill-accent">Optional</span><h2 style="margin-top:10px">${eur(FEES.boostPrice)}</h2><p class="muted">Boost: 7 Tage oben in Suche und Tausch-Matches.</p></div>
     </div>
     <div class="panel"><h2>Rechner</h2>
       <label class="field"><span>Verkaufspreis: <b id="cv">100 €</b></span><input type="range" id="calc" min="10" max="300" step="5" value="100"></label>
@@ -768,6 +763,99 @@
     $("#foot").addEventListener("input", up); up();
   }
 
+  /* ---------- Admin ---------- */
+  const ADMIN_TABS = [["uebersicht", "Übersicht"], ["gebuehren", "Gebühren"], ["regeln", "Plattformregeln"], ["kategorien", "Kategorien"], ["inserate", "Inserate"], ["nutzer", "Nutzer"], ["startseite", "Startseite"], ["warteliste", "Warteliste"]];
+  const field = (label, path, value, opts = {}) => `<label class="field"><span>${label}${opts.hint ? ` <span class="muted" style="font-weight:400">${opts.hint}</span>` : ""}</span>${opts.suffix ? `<span class="input-suffix">` : ""}<input type="${opts.type || "number"}" data-cfg="${path}" ${opts.scale ? `data-scale="${opts.scale}"` : ""} value="${esc(value)}" ${opts.type === "text" || opts.type === "datetime-local" ? "" : `step="${opts.step || "0.01"}" min="${opts.min ?? 0}"`}>${opts.suffix ? `<i>${opts.suffix}</i></span>` : ""}</label>`;
+  const pct = v => Math.round(v * 1000) / 10;
+
+  pages.admin = (_, tab = "uebersicht") => {
+    const cfg = adminStore.load();
+    const all = ALL_LISTINGS, live = LISTINGS;
+    const feeOf = p => buyerFee(p) + sellerFee(p);
+    const body = {
+      uebersicht: () => {
+        const blockedN = Object.values(cfg.users || {}).filter(u => u.blocked).length;
+        const potential = live.filter(l => l.kind !== "swap").reduce((a, l) => a + feeOf(l.price), 0);
+        return `<div class="kpis">
+          <div class="kpi"><span class="muted small">Sichtbare Inserate</span><b>${live.length}</b><span class="small muted">von ${all.length}</span></div>
+          <div class="kpi"><span class="muted small">Warenwert (sichtbar)</span><b>${eur(live.reduce((a, l) => a + l.price, 0))}</b></div>
+          <div class="kpi"><span class="muted small">Einnahmen, falls alle verkauft</span><b>${eur(potential)}</b><span class="small muted">Provision + Käuferschutz</span></div>
+          <div class="kpi"><span class="muted small">Gesperrte Nutzer</span><b>${blockedN}</b></div></div>
+          <div class="panel"><h3>Deine Einnahme pro Verkauf</h3><table class="breakdown"><tr style="font-weight:700"><td>Verkaufspreis</td><td>Provision</td><td>Käuferschutz</td><td>Einnahme gesamt</td></tr>
+          ${[30, 60, 100, 150, 200].map(p => `<tr><td>${eur(p)}</td><td>${eur(sellerFee(p))}</td><td>${eur(buyerFee(p))}</td><td><b>${eur(feeOf(p))}</b></td></tr>`).join("")}</table>
+          <p class="small muted" style="margin-top:10px">Brutto, vor Gebühren des Zahlungsdienstleisters. Tausch bringt zusätzlich ${eur(FEES.swapFeePerParty * 2)} pro Tausch.</p></div>`;
+      },
+      gebuehren: () => `<div class="two-col"><div class="panel">
+          <h3>Verkäufer</h3><div class="form-grid">${field("Provision", "fees.sellerCommissionPct", pct(FEES.sellerCommissionPct), { scale: 100, suffix: "%", step: "0.1" })}${field("Mindestprovision", "fees.sellerCommissionMin", FEES.sellerCommissionMin, { suffix: "€" })}</div>
+          <h3>Käufer</h3><div class="form-grid">${field("Käuferschutz", "fees.buyerProtectionPct", pct(FEES.buyerProtectionPct), { scale: 100, suffix: "%", step: "0.1" })}${field("Käuferschutz fix", "fees.buyerProtectionFix", FEES.buyerProtectionFix, { suffix: "€" })}</div>
+          <h3>Tausch</h3><div class="form-grid">${field("Tauschgebühr pro Person", "fees.swapFeePerParty", FEES.swapFeePerParty, { suffix: "€" })}</div>
+          <h3>Versand</h3><div class="form-grid">${Object.entries(FEES.shipping).map(([k, v]) => field(v.label, `fees.shipping.${k}`, v.price, { suffix: "€" })).join("")}</div>
+        </div><div class="panel sticky"><h3>Vorschau bei 100 €</h3><table class="breakdown" id="feePreview"></table></div></div>`,
+      regeln: () => `<div class="panel" style="max-width:640px"><div class="form-grid">
+          ${field("Maximale Laufleistung", "rules.maxKm", MAX_KM, { suffix: "km", step: "1", min: 1, hint: "Inserate darüber werden abgelehnt" })}
+          ${field("Geschätzte Lebensdauer", "rules.lifeKm", SHOE_LIFE_KM, { suffix: "km", step: "10", min: 50, hint: "für „Lebensdauer übrig“" })}</div>
+          <p class="small muted">Die Pflichtangabe „nass/trocken getragen“ ist fest eingebaut und gilt für alle Schuh-Kategorien.</p></div>`,
+      kategorien: () => `<div class="panel"><table class="admin-table"><tr><th></th><th>Name</th><th>Inserate</th><th>Aktiv</th></tr>
+          ${ALL_CATEGORIES.map(c => `<tr><td class="ico-cell">${CAT_ICONS[c.id]}</td><td><input type="text" data-cfg="categories.${c.id}.name" value="${esc(c.name)}"></td><td>${all.filter(l => l.cat === c.id).length}</td><td><label class="switch"><input type="checkbox" data-cfg="categories.${c.id}.enabled" ${cfg.categories?.[c.id]?.enabled === false ? "" : "checked"}><span></span></label></td></tr>`).join("")}</table>
+          <p class="small muted" style="margin-top:10px">Deaktivierte Kategorien verschwinden samt ihren Inseraten aus Startseite, Filter und Inserieren.</p></div>`,
+      inserate: () => `<div class="panel" style="overflow-x:auto"><table class="admin-table"><tr><th></th><th>Inserat</th><th>Verkäufer</th><th>km</th><th>Nässe</th><th>Preis</th><th>Sichtbar</th></tr>
+          ${all.map(l => `<tr class="${cfg.listings?.[l.id]?.hidden ? "row-off" : ""}"><td><div class="list-thumb" style="${bgFor(l)};width:56px;height:44px">${shoe(l)}</div></td>
+            <td><a href="#/artikel/${l.id}"><b>${esc(l.brand)} ${esc(l.model)}</b></a><div class="small muted">#${l.id} · ${sizeLabel(l.size)} · ${CONDITIONS[l.cond].label}</div></td>
+            <td>${SELLERS[l.seller].name}${cfg.users?.[l.seller]?.blocked ? ' <span class="status st-pending">gesperrt</span>' : ""}</td>
+            <td class="${isShoe(l) && l.km > MAX_KM ? "warn" : ""}">${isShoe(l) ? l.km : "–"}</td><td>${isShoe(l) ? wetPill(l) : "–"}</td>
+            <td><span class="input-suffix" style="width:110px"><input type="number" min="1" step="1" data-cfg="listings.${l.id}.price" value="${l.price}"><i>€</i></span></td>
+            <td><label class="switch"><input type="checkbox" data-cfg="listings.${l.id}.hidden" data-invert="1" ${cfg.listings?.[l.id]?.hidden ? "" : "checked"}><span></span></label></td></tr>`).join("")}</table></div>`,
+      nutzer: () => `<div class="panel"><table class="admin-table"><tr><th></th><th>Name</th><th>Ort</th><th>Bewertung</th><th>Inserate</th><th>Gesperrt</th></tr>
+          ${Object.entries(SELLERS).map(([id, u]) => `<tr><td>${avatar(u, 34)}</td><td><b>${u.name}</b><div class="small muted">seit ${u.since} · ${u.sport}</div></td><td>${u.city}</td><td>${u.rating.toString().replace(".", ",")} ★ (${u.reviews})</td><td>${all.filter(l => l.seller === id).length}</td>
+            <td><label class="switch switch-danger"><input type="checkbox" data-cfg="users.${id}.blocked" ${cfg.users?.[id]?.blocked ? "checked" : ""}><span></span></label></td></tr>`).join("")}</table>
+          <p class="small muted" style="margin-top:10px">Die Inserate gesperrter Nutzer werden sofort ausgeblendet.</p></div>`,
+      startseite: () => `<div class="panel" style="max-width:760px">
+          <h3>Animierte Überschrift</h3><p class="small muted">„Passt nicht?“ bleibt fest. Die Varianten werden nacheinander getippt, am Ende steht wieder die erste.</p>
+          <div class="form-grid">${SITE.typerWords.concat(["", ""]).slice(0, 4).map((w, i) => field(`Variante ${i + 1}`, `site.typerWords.${i}`, w, { type: "text" })).join("")}</div>
+          ${field("Zweite Zeile", "site.subline", SITE.subline, { type: "text" })}
+          <h3>Kennzahlen unter der Suche</h3><div class="form-grid">${SITE.stats.map(([v, t], i) => field(`Wert ${i + 1}`, `site.stats.${i}.0`, v, { type: "text" }) + field(`Beschriftung ${i + 1}`, `site.stats.${i}.1`, t, { type: "text" })).join("")}</div>
+          <p class="small muted">Vor dem Start durch echte Zahlen ersetzen. Erfundene Kennzahlen sind irreführende Werbung.</p></div>`,
+      warteliste: () => `<div class="panel" style="max-width:640px"><div class="form-grid">
+          ${field("Startdatum", "site.launch", SITE.launch, { type: "datetime-local" })}
+          ${field("Ziel Anmeldungen", "site.goal", SITE.goal, { step: "50", min: 1 })}
+          ${field("Aktion: erste … Verkäufer", "site.promoSellers", SITE.promoSellers, { step: "10", min: 0 })}
+          ${field("Aktion: Monate ohne Provision", "site.promoMonths", SITE.promoMonths, { step: "1", min: 0 })}</div>
+          <p class="small muted">Wirkt auf Countdown, Fortschrittsbalken und die Aktionstexte der <a href="warteliste.html" style="text-decoration:underline">Warteliste</a>.</p></div>`
+    };
+    return `<div class="wrap section">
+      <div class="spread"><div><span class="pill pill-accent">Admin</span><h1 style="font-size:2rem;margin-top:10px">Verwaltung</h1></div>
+        <div class="row"><button class="btn btn-sm" id="adminReset">Alles auf Standard</button>${tab !== "uebersicht" ? `<button class="btn btn-primary" id="adminSave">Speichern</button>` : ""}</div></div>
+      <div class="notice" style="margin:14px 0 20px">Demo: Änderungen werden nur in diesem Browser gespeichert und gelten sofort für Marktplatz und Warteliste. Im echten Betrieb gehört der Bereich hinter einen Admin-Login mit Server-API.</div>
+      <nav class="tabs">${ADMIN_TABS.map(([k, n]) => `<a href="#/admin/${k}" class="${k === tab ? "on" : ""}">${n}</a>`).join("")}</nav>
+      ${(body[tab] || body.uebersicht)()}</div>`;
+  };
+  function bindAdmin(_, tab) {
+    const setPath = (o, path, v) => { const k = path.split("."); let t = o; k.slice(0, -1).forEach((p, i) => { t[p] ??= /^\d+$/.test(k[i + 1]) && ["typerWords", "stats"].includes(p) || /^\d+$/.test(k[i + 1]) && k[i - 1] === "stats" ? [] : {}; t = t[p]; }); t[k.at(-1)] = v; };
+    const preview = () => {
+      const t = $("#feePreview"); if (!t) return;
+      const val = n => +$(`[data-cfg="${n}"]`).value;
+      const sc = Math.max(100 * val("fees.sellerCommissionPct") / 100, val("fees.sellerCommissionMin")), bp = 100 * val("fees.buyerProtectionPct") / 100 + val("fees.buyerProtectionFix");
+      t.innerHTML = `<tr><td>Käufer zahlt (ohne Versand)</td><td>${eur(100 + bp)}</td></tr><tr><td>Verkäufer erhält</td><td>${eur(100 - sc)}</td></tr><tr class="total"><td>Deine Einnahme</td><td>${eur(sc + bp)}</td></tr>`;
+    };
+    app.addEventListener("input", preview, { signal: pageAbort.signal }); preview();
+    $("#adminSave")?.addEventListener("click", () => {
+      const cfg = adminStore.load();
+      let bad = false;
+      $$("[data-cfg]").forEach(el => {
+        let v;
+        if (el.type === "checkbox") v = el.dataset.invert ? !el.checked : el.checked;
+        else if (el.type === "number") { v = parseFloat(el.value); if (!isFinite(v) || v < 0) { bad = true; el.style.outline = "2px solid #c0392b"; return; } if (el.dataset.scale) v = v / +el.dataset.scale; }
+        else v = el.value.trim();
+        setPath(cfg, el.dataset.cfg, v);
+      });
+      if (bad) return toast("Bitte ungültige Werte korrigieren.");
+      if (cfg.site?.typerWords) cfg.site.typerWords = cfg.site.typerWords.filter(Boolean);
+      adminStore.save(cfg) ? (sessionStorage.setItem("rx_admin_saved", "1"), location.reload()) : toast("Speichern nicht möglich (Browser-Speicher blockiert).");
+    });
+    $("#adminReset").addEventListener("click", () => { if (confirm("Alle Admin-Änderungen verwerfen und Standardwerte wiederherstellen?")) { adminStore.reset(); location.reload(); } });
+    try { if (sessionStorage.getItem("rx_admin_saved")) { sessionStorage.removeItem("rx_admin_saved"); toast("Gespeichert ✓"); } } catch {}
+  }
+
   pages.rechtliches = () => `<div class="wrap section" style="max-width:800px"><h1>Impressum, AGB & Datenschutz</h1><div class="panel"><p class="muted">Platzhalter. Vor dem Livegang müssen hier Impressum (§ 5 DDG), AGB inklusive Plattformregeln, Datenschutzerklärung (DSGVO) sowie Hinweise zur Zahlungsabwicklung über einen lizenzierten Zahlungsdienstleister stehen.</p></div></div>`;
   pages.notfound = () => `<div class="wrap section"><div class="empty"><span>🏃</span><h2>Seite nicht gefunden</h2><a class="btn btn-primary" href="#/">Zur Startseite</a></div></div>`;
 
@@ -777,7 +865,8 @@
     const el = $("#typer");
     if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     // Läuft einmal durch und endet wieder bei „Tausch ihn.“
-    const words = ["Tausch ihn.", "Verkauf ihn.", "Gib ihn weiter.", "Tausch ihn."];
+    const words = [...SITE.typerWords, SITE.typerWords[0]];
+    if (words.length < 3) return;
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     (async () => {
       await sleep(1800);
@@ -792,7 +881,7 @@
     })();
   }
 
-  const binders = { home: bindHome, markt: bindMarket, artikel: bindArtikel, tausch: bindTausch, "tausch-anbieten": bindTauschAnbieten, verkaufen: bindVerkaufen, kasse: bindKasse, konto: bindKonto, nachrichten: bindNachrichten, gebuehren: bindGebuehren, groessen: bindGroessen };
+  const binders = { home: bindHome, admin: bindAdmin, markt: bindMarket, artikel: bindArtikel, tausch: bindTausch, "tausch-anbieten": bindTauschAnbieten, verkaufen: bindVerkaufen, kasse: bindKasse, konto: bindKonto, nachrichten: bindNachrichten, gebuehren: bindGebuehren, groessen: bindGroessen };
   let pageAbort = new AbortController();
   let lastRoute = "";
 

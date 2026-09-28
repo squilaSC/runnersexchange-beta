@@ -8,8 +8,13 @@
     set(k, v) { try { localStorage.setItem("rxwl_" + k, JSON.stringify(v)); } catch {} }
   };
 
-  const LAUNCH = new Date("2027-03-15T10:00:00+01:00");
-  const GOAL = 1000;
+  // Startdatum, Ziel und Aktion kommen aus SITE (im Admin-Bereich änderbar)
+  const LAUNCH = new Date(SITE.launch);
+  const GOAL = +SITE.goal || 1000;
+  document.querySelectorAll(".promo-sellers").forEach(e => e.textContent = SITE.promoSellers);
+  document.querySelectorAll(".promo-months").forEach(e => e.textContent = SITE.promoMonths);
+  document.querySelectorAll(".promo-pct").forEach(e => e.textContent = Math.round(FEES.sellerCommissionPct * 1000) / 10);
+  document.getElementById("goal").textContent = GOAL.toLocaleString("de-DE");
   const MODELS = {
     Nike: ["Vaporfly 3", "Alphafly 3", "Pegasus 41", "Zoom Fly 6", "Streakfly"],
     Adidas: ["Adios Pro 4", "Boston 13", "Evo SL", "Takumi Sen 10"],
@@ -117,7 +122,7 @@
         <a class="btn btn-sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent("Fehlkauf im Schrank? Runners Exchange startet bald in Mainz: " + refUrl)}">WhatsApp</a>
         <button class="btn btn-sm" id="share">Teilen …</button>
       </div>
-      <p class="small muted" style="margin-top:14px">${entry.refs} Empfehlung(en) · ab 3 gibt's einen Gratis-Boost</p>
+      <p class="small muted" style="margin-top:14px">${entry.refs} Empfehlung(en)</p>
       <button class="btn btn-ghost btn-sm" id="another">Weiteren Schuh eintragen</button>`;
     $("#copy").addEventListener("click", async () => {
       try { await navigator.clipboard.writeText(refUrl); toast("Link kopiert ✓"); } catch { $("#refUrl").select(); toast("Link markiert – jetzt kopieren"); }

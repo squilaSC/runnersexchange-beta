@@ -60,12 +60,12 @@
         <p class="lead muted" style="font-size:1.15rem;max-width:540px">Online bestellt, einmal gelaufen, passt nicht, und zurückschicken geht nicht mehr. Bei uns wechselt der Schuh den Besitzer, und zwar hier in Mainz: persönlich übergeben am Rheinufer, im Volkspark oder beim Laufladen um die Ecke. Kein Versand, kein Karton, kein Wegwerfen.</p>
         <div class="countdown" id="countdown"></div>
         <div class="panel" style="max-width:520px">
-          <div class="spread"><b><span id="total">0</span> Mainzer:innen dabei</b><span class="small muted">Ziel für den Start: 1.000</span></div>
+          <div class="spread"><b><span id="total">0</span> Mainzer:innen dabei</b><span class="small muted">Ziel für den Start: <span id="goal">1.000</span></span></div>
           <div class="progress"><i id="bar" style="width:0"></i></div>
           <div class="small muted"><span id="sellers">0</span> Paar Schuhe schon angekündigt · <span id="buyers">0</span> Suchaufträge</div>
         </div>
         <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:22px;max-width:560px">
-          <div><b>🎁 0 % Provision</b><div class="small muted">für die ersten 500 Verkäufer, 3 Monate lang</div></div>
+          <div><b>🎁 0 % Provision</b><div class="small muted">für die ersten <span class="promo-sellers">500</span> Verkäufer, <span class="promo-months">3</span> Monate lang</div></div>
           <div><b>🌱 <span id="co2Hero">0</span> kg CO₂e</b><div class="small muted">Einsparpotenzial der angekündigten Paare</div></div>
           <div><b>🤝 Persönlich</b><div class="small muted">Anprobieren vor Ort, Übergabe in deinem Viertel</div></div>
         </div>
@@ -87,7 +87,7 @@
             </div>
             <label class="field sell-only hidden"><span>Wunschpreis (€, unverbindlich)</span><input type="number" name="price" min="1" placeholder="120"></label>
             <label class="field sell-only hidden"><span>Zustand</span><select name="cond"><option>Neu / nur anprobiert</option><option>1× getragen</option><option>Wenig getragen (max. 50 km)</option></select></label>
-            <label class="field sell-only hidden"><span>Nass oder im Regen getragen? <span style="color:var(--accent)">*</span></span><select name="wet"><option value="">Bitte wählen</option><option value="false">☀ Nein, nur trocken</option><option value="true">💧 Ja, nass / Regen</option></select></label>
+            <label class="field sell-only hidden"><span>Nass oder im Regen getragen? <span style="color:var(--accent)">*</span></span><select name="wet"><option value="">Bitte wählen</option><option value="false">Nein, nur trocken</option><option value="true">Ja, nass / Regen</option></select></label>
             <p class="small muted sell-only hidden" style="margin-top:-6px">Wir nehmen nur Schuhe mit höchstens 50 km Laufleistung.</p>
             <label class="field"><span>E-Mail</span><input type="email" name="email" placeholder="du@beispiel.de" required></label>
             <label class="field"><span>Verein / Lauftreff <span class="muted">(optional, für die Vereins-Challenge)</span></span><input type="text" name="club" list="clubs" placeholder="z. B. Tri-Team Mainz"></label>
@@ -174,8 +174,8 @@
       <h2>Fragen</h2>
       <details><summary>Wann geht es los?</summary><p>Im Frühjahr 2027, zuerst in Mainz. Wiesbaden folgt kurz danach. Alle auf der Warteliste bekommen 48 Stunden früher Zugang.</p></details>
       <details><summary>Warum nur Mainz?</summary><p>Ein Marktplatz funktioniert nur, wenn Angebot und Nachfrage zusammenkommen. In einer Stadt geht das schneller als in ganz Deutschland. Außerdem kann man sich persönlich treffen und anprobieren, das schafft Vertrauen und spart den Versand.</p></details>
-      <details><summary>Was kostet es?</summary><p>Einstellen ist immer kostenlos. Für die ersten 500 Verkäufer entfällt die Provision 3 Monate lang, danach sind es 5 %. Käufer zahlen einen kleinen Käuferschutz-Beitrag.</p></details>
-      <details><summary>Was bringt es, mich weiterzuempfehlen?</summary><p>Jede Person, die sich über deinen Link einträgt, bringt dich 10 Plätze nach vorn. Ab 3 Empfehlungen bekommst du einen kostenlosen Boost für dein erstes Inserat.</p></details>
+      <details><summary>Was kostet es?</summary><p>Einstellen ist immer kostenlos. Für die ersten <span class="promo-sellers">500</span> Verkäufer entfällt die Provision <span class="promo-months">3</span> Monate lang, danach sind es <span class="promo-pct">5</span> %. Käufer zahlen einen kleinen Käuferschutz-Beitrag.</p></details>
+      <details><summary>Was bringt es, mich weiterzuempfehlen?</summary><p>Jede Person, die sich über deinen Link einträgt, bringt dich 10 Plätze nach vorn.</p></details>
       <details><summary>Was passiert mit meinen Daten?</summary><p>Wir nutzen deine E-Mail ausschließlich, um dich über den Start und passende Treffer zu informieren. Keine Weitergabe an Dritte, Abmeldung mit einem Klick. (Platzhalter: vollständige Datenschutzerklärung folgt.)</p></details>
       <details><summary>Wie nachhaltig ist das wirklich?</summary><p>Der größte Hebel ist, dass kein neuer Schuh produziert werden muss. Die 14 kg CO₂e pro Paar stammen aus einer MIT-Studie (Cheah et al., 2013). Unsere Anzeige ist eine Schätzung, nicht jeder Kauf ersetzt einen Neukauf. Wir rechnen trotzdem lieber offen, als grün zu färben.</p></details>
       <details><summary>Welche Schuhe darf ich anbieten?</summary><p>Nur Schuhe mit höchstens 50 km Laufleistung. Bei jedem Paar gibst du an, ob es nass oder im Regen getragen wurde. Das sehen Käufer sofort auf dem Inserat.</p></details>
@@ -186,6 +186,8 @@
   <footer class="footer"><div class="wrap footer-bottom muted" style="border:0;margin:0;padding:0">© 2026 Runners Exchange (Arbeitstitel) · <a href="index.html" style="display:inline">Vorschau des Marktplatzes</a> · Impressum · Datenschutz</div></footer>
   <div id="toast" class="toast" role="status"></div>
 
+  <script src="js/data.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/warteliste.js"></script>
 </body>
 </html>
