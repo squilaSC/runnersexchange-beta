@@ -34,6 +34,8 @@ const CONDITIONS = {
 
 // Plattformregel: Schuhe nur bis max. 50 km Laufleistung
 const MAX_KM = 50;
+// Geschätzte Lebensdauer eines Laufschuhs, nur für die Anzeige der Restlaufleistung
+const SHOE_LIFE_KM = 600;
 // Pflichtangabe bei Schuhen: wet = true (nass/Regen getragen) | false (nur trocken)
 const WET = {
   false: { label: "Nur trocken getragen", short: "Nur trocken", icon: "☀" },

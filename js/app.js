@@ -69,7 +69,7 @@
     const off = Math.round((1 - l.price / l.retail) * 100);
     const s = SELLERS[l.seller];
     return `<article class="card">
-      <button class="fav ${state.favs.includes(l.id) ? "on" : ""}" data-fav="${l.id}" aria-label="Merken">${state.favs.includes(l.id) ? "♥" : "♡"}</button>
+      <button class="fav ${state.favs.includes(l.id) ? "on" : ""}" data-fav="${l.id}" aria-label="Zur Wishlist" aria-pressed="${state.favs.includes(l.id)}"><span class="fav-heart">${state.favs.includes(l.id) ? "♥" : "♡"}</span></button>
       <a href="#/artikel/${l.id}">
         <div class="card-img" style="${bgFor(l)}">${shoe(l)}
           <div class="card-tags">${wetPill(l)}${l.cond === "neu" || l.cond === "anprobiert" ? `<span class="pill pill-green">${CONDITIONS[l.cond].label}</span>` : ""}${kindPill(l.kind)}</div>
@@ -97,7 +97,7 @@
     <section class="hero wrap"><div class="hero-grid">
       <div>
         <span class="pill pill-accent">Fehlkauf? Kein Problem.</span>
-        <h1 style="margin-top:14px">Passt nicht? <em>Tausch ihn.</em><br>Oder verkauf ihn weiter.</h1>
+        <h1 style="margin-top:14px" aria-label="Passt nicht? Tausch ihn, verkauf ihn oder gib ihn weiter. Bloß nicht wegwerfen.">Passt nicht?<br><span class="typer" aria-hidden="true"><em id="typer">Tausch ihn.</em><span class="caret"></span></span><br><span aria-hidden="true">Bloß nicht wegwerfen.</span></h1>
         <p class="lead">Die Börse für kaum getragene Lauf- und Sportschuhe. Einmal gelaufen, nicht mehr zurückzugeben: Hier findet dein Schuh jemanden, dem er passt.</p>
         <form class="searchbar" id="heroSearch"><input type="search" name="q" placeholder="Marke, Modell oder Größe, z. B. „Vaporfly 43“"><button class="btn btn-primary">Suchen</button></form>
         <div class="row"><a class="btn btn-dark" href="#/verkaufen">Schuh inserieren – kostenlos</a><a class="btn" href="#/tausch">Tauschbörse ansehen</a></div>
@@ -239,8 +239,7 @@
           <div class="specs">
             <div><small>Größe</small><b>${sizeLabel(l.size)}</b></div>
             <div><small>Modell für</small><b>${l.gender}</b></div>
-            <div><small>Zustand</small><b>${c.label}</b><div class="wear"><i style="width:${100 - c.wear}%"></i></div></div>
-            <div><small>Gelaufen</small><b>${l.km} von max. ${MAX_KM} km</b></div>
+            ${wearPanel(l)}
             ${isShoe(l) ? `<div class="${l.wet ? "spec-wet" : "spec-dry"}"><small>Nässe</small><b>${WET[l.wet].icon} ${WET[l.wet].label}</b></div>` : ""}
             ${typeof l.size === "number" ? `<div><small>Sprengung</small><b>${l.drop} mm</b></div><div><small>Originalkarton</small><b>Ja</b></div>` : ""}
           </div>
@@ -248,7 +247,7 @@
             ${l.kind !== "swap" ? `<a class="btn btn-primary btn-block" href="#/kasse/${l.id}">Jetzt kaufen · ${eur(l.price + bf + ship)}</a>
             <button class="btn btn-block" data-cart="${l.id}">In den Warenkorb</button>` : ""}
             ${l.kind !== "sale" ? `<a class="btn btn-dark btn-block" href="#/tausch-anbieten/${l.id}">⇄ Tausch vorschlagen</a>` : ""}
-            <div class="row"><button class="btn btn-sm" id="offerBtn" ${l.kind === "swap" ? "hidden" : ""}>💬 Preisvorschlag</button><button class="btn btn-sm" data-fav="${l.id}">${state.favs.includes(l.id) ? "♥ Gemerkt" : "♡ Merken"}</button><a class="btn btn-sm" href="#/nachrichten">✉ Frage stellen</a></div>
+            <div class="row"><button class="btn btn-sm" id="offerBtn" ${l.kind === "swap" ? "hidden" : ""}>💬 Preisvorschlag</button><button class="btn btn-sm" data-fav="${l.id}">${state.favs.includes(l.id) ? "♥ In der Wishlist" : "♡ Zur Wishlist"}</button><a class="btn btn-sm" href="#/nachrichten">✉ Frage stellen</a></div>
           </div>
           <div id="offerBox" class="panel hidden" style="margin-top:14px">
             <label class="field"><span>Dein Angebot (min. ${eur(Math.round(l.price * .7))})</span><input type="number" id="offerVal" value="${Math.round(l.price * .85)}"></label>
@@ -276,6 +275,60 @@
       if (v < Math.round(l.price * .7)) return toast("Angebot zu niedrig – mindestens 70 % des Preises.");
       $("#offerBox").classList.add("hidden"); toast(`Angebot über ${eur(v)} an ${SELLERS[l.seller].name} gesendet.`);
     });
+  }
+
+  /* Zustand & Kilometer als Grafik */
+  // Stilisierte 400-m-Bahn (Draufsicht): Geraden x 90–230, Kurvenmittelpunkte (90|80) und (230|80).
+  // Start/Ziel wie beim 400-m-Lauf am Ende der Zielgeraden (unten rechts), Laufrichtung gegen den Uhrzeigersinn.
+  const TRACK = { x1: 90, x2: 230, cy: 80, straight: 140 };
+  const lanePath = r => `M${TRACK.x2} ${TRACK.cy + r}A${r} ${r} 0 0 0 ${TRACK.x2} ${TRACK.cy - r}H${TRACK.x1}A${r} ${r} 0 0 0 ${TRACK.x1} ${TRACK.cy + r}Z`;
+  // f = Anteil der Runde, gemessen auf der Referenzbahn rRef; r = Radius, auf dem der Punkt liegt
+  function trackPoint(f, r, rRef = r) {
+    const arc = Math.PI * rRef, total = 2 * TRACK.straight + 2 * arc;
+    let d = ((f % 1) + 1) % 1 * total;
+    if (d <= arc) { const a = d / rRef; return [TRACK.x2 + r * Math.sin(a), TRACK.cy + r * Math.cos(a)]; }
+    d -= arc;
+    if (d <= TRACK.straight) return [TRACK.x2 - d, TRACK.cy - r];
+    d -= TRACK.straight;
+    if (d <= arc) { const a = d / rRef; return [TRACK.x1 - r * Math.sin(a), TRACK.cy - r * Math.cos(a)]; }
+    d -= arc;
+    return [TRACK.x1 + d, TRACK.cy + r];
+  }
+  function trackSvg(km) {
+    const f = Math.min(1, km / MAX_KM), inner = 44, outer = 72, mid = 58;
+    const [rx, ry] = trackPoint(f, mid);
+    const ticks = [10, 20, 30, 40].map(k => { const [ax, ay] = trackPoint(k / MAX_KM, inner + 1, mid), [bx, by] = trackPoint(k / MAX_KM, outer - 1, mid), [lx, ly] = trackPoint(k / MAX_KM, outer + 9, mid);
+      return `<line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" class="tr-tick"/><text x="${lx}" y="${ly + 3}" class="tr-lbl">${k}</text>`; }).join("");
+    return `<svg class="track" viewBox="0 0 320 160" role="img" aria-label="${km} von maximal ${MAX_KM} Kilometern, das entspricht ${Math.round(f * 400)} Metern auf einer 400-Meter-Bahn">
+      <path d="${lanePath(inner)}" class="tr-infield"/>
+      <path d="${lanePath(mid)}" class="tr-base" stroke-width="${outer - inner}"/>
+      ${f > 0 ? `<path d="${lanePath(mid)}" class="tr-run" stroke-width="${outer - inner}" pathLength="1000" stroke-dasharray="${f * 1000} 1000"/>` : ""}
+      ${[51, 58, 65].map(r => `<path d="${lanePath(r)}" class="tr-lane"/>`).join("")}
+      <path d="${lanePath(inner)}" class="tr-edge"/><path d="${lanePath(outer)}" class="tr-edge"/>
+      ${ticks}
+      <line x1="${TRACK.x2}" y1="${TRACK.cy + inner}" x2="${TRACK.x2}" y2="${TRACK.cy + outer}" class="tr-start"/>
+      <text x="${TRACK.x2}" y="${TRACK.cy + outer + 11}" class="tr-lbl" text-anchor="middle">0 / ${MAX_KM}</text>
+      <circle cx="${rx}" cy="${ry}" r="7" class="tr-runner"/>
+      <text x="160" y="80" class="tr-big" text-anchor="middle" dominant-baseline="central">${km} km</text>
+    </svg>`;
+  }
+  function wearPanel(l) {
+    const steps = [["neu", "Neu"], ["anprobiert", "Anprobiert"], ["getragen", "Getragen"]];
+    const stepOf = c => c === "neu" || c === "anprobiert" ? c : "getragen";
+    const idx = steps.findIndex(([k]) => k === stepOf(l.cond));
+    const cond = `<div class="wp-block">
+        <div class="wp-head"><small>Zustand</small><b>${CONDITIONS[l.cond].label}</b></div>
+        <ol class="cond-steps" style="--p:${idx / (steps.length - 1)}">${steps.map(([k, n], i) => `<li class="${i < idx ? "done" : i === idx ? "on" : ""}"><span class="dot"></span><span class="lbl">${n}</span></li>`).join("")}</ol>
+      </div>`;
+    if (!isShoe(l)) return `<div class="wear-panel">${cond}</div>`;
+    const left = Math.max(0, Math.round((1 - l.km / SHOE_LIFE_KM) * 100));
+    return `<div class="wear-panel">${cond}
+      <div class="wp-block">
+        <div class="wp-head"><small>Gelaufen</small><b>${l.km} km <span class="muted" style="font-weight:500">von max. ${MAX_KM}</span></b></div>
+        ${trackSvg(l.km)}
+        <div class="km-life"><span class="km-life-bar"><i style="width:${left}%"></i></span><span><b>${left} %</b> Lebensdauer übrig <span class="muted">(bei ca. ${SHOE_LIFE_KM} km)</span></span></div>
+      </div>
+    </div>`;
   }
 
   /* Tauschbörse */
@@ -539,7 +592,7 @@
     </div>`;
   };
 
-  pages.merkliste = () => `<div class="wrap section"><h1>Merkliste</h1>${state.favs.length ? cards(state.favs.map(byId).filter(Boolean)) : `<div class="empty"><span>♡</span>Noch nichts gemerkt.</div>`}</div>`;
+  pages.wishlist = () => `<div class="wrap section"><h1>Wishlist</h1>${state.favs.length ? cards(state.favs.map(byId).filter(Boolean)) : `<div class="empty"><span>♡</span>Deine Wishlist ist noch leer. Tipp aufs ♡, um Schuhe zu speichern.</div>`}</div>`;
 
   /* Konto */
   pages.konto = (_, tab = "uebersicht") => {
@@ -714,7 +767,27 @@
   pages.notfound = () => `<div class="wrap section"><div class="empty"><span>🏃</span><h2>Seite nicht gefunden</h2><a class="btn btn-primary" href="#/">Zur Startseite</a></div></div>`;
 
   /* ---------- Router ---------- */
-  const binders = { markt: bindMarket, artikel: bindArtikel, tausch: bindTausch, "tausch-anbieten": bindTauschAnbieten, verkaufen: bindVerkaufen, kasse: bindKasse, konto: bindKonto, nachrichten: bindNachrichten, gebuehren: bindGebuehren, groessen: bindGroessen };
+  /* Schreibmaschinen-Effekt: löschen und neu tippen */
+  function bindHome() {
+    const el = $("#typer");
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Läuft einmal durch und endet wieder bei „Tausch ihn.“
+    const words = ["Tausch ihn.", "Verkauf ihn.", "Gib ihn weiter.", "Tausch ihn."];
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    (async () => {
+      await sleep(1800);
+      for (let w = 1; w < words.length; w++) {
+        for (let t = el.textContent; t.length; await sleep(45)) { t = t.slice(0, -1); if (!el.isConnected) return; el.textContent = t; }
+        await sleep(300);
+        for (let n = 1; n <= words[w].length; await sleep(85 + Math.random() * 70)) { if (!el.isConnected) return; el.textContent = words[w].slice(0, n++); }
+        if (w < words.length - 1) await sleep(1400);
+      }
+      await sleep(1500);
+      el.nextElementSibling?.classList.add("caret-done");
+    })();
+  }
+
+  const binders = { home: bindHome, markt: bindMarket, artikel: bindArtikel, tausch: bindTausch, "tausch-anbieten": bindTauschAnbieten, verkaufen: bindVerkaufen, kasse: bindKasse, konto: bindKonto, nachrichten: bindNachrichten, gebuehren: bindGebuehren, groessen: bindGroessen };
   let pageAbort = new AbortController();
   let lastRoute = "";
 
@@ -735,16 +808,31 @@
     updateBadges();
   }
 
-  /* Globale Klicks: Merken & Warenkorb */
+  /* Herz-Animation: Pop + kleine Partikel */
+  function favBurst(btn) {
+    btn.classList.remove("pop"); void btn.offsetWidth; btn.classList.add("pop");
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const burst = document.createElement("span"); burst.className = "fav-burst";
+    for (let i = 0; i < 8; i++) { const p = document.createElement("i"); p.style.setProperty("--a", i * 45 + "deg"); burst.appendChild(p); }
+    btn.appendChild(burst); setTimeout(() => burst.remove(), 650);
+  }
+
+  /* Globale Klicks: Wishlist & Warenkorb */
   document.addEventListener("click", e => {
     const f = e.target.closest("[data-fav]");
     if (f) {
       e.preventDefault(); const id = +f.dataset.fav;
       const on = !state.favs.includes(id);
       state.favs = on ? [...state.favs, id] : state.favs.filter(x => x !== id); save();
-      $$(`[data-fav="${id}"]`).forEach(b => { b.classList.toggle("on", on); b.textContent = b.classList.contains("fav") ? (on ? "♥" : "♡") : (on ? "♥ Gemerkt" : "♡ Merken"); });
-      toast(on ? "Zur Merkliste hinzugefügt" : "Von Merkliste entfernt");
-      if (location.hash === "#/merkliste") render();
+      $$(`[data-fav="${id}"]`).forEach(b => {
+        b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+        if (b.classList.contains("fav")) b.querySelector(".fav-heart").textContent = on ? "♥" : "♡";
+        else b.textContent = on ? "♥ In der Wishlist" : "♡ Zur Wishlist";
+        if (on) favBurst(b);
+      });
+      const badge = $("#favCount").parentElement; badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump");
+      toast(on ? "Zur Wishlist hinzugefügt ♥" : "Aus der Wishlist entfernt");
+      if (location.hash === "#/wishlist") render();
     }
     const c = e.target.closest("[data-cart]");
     if (c) { const id = +c.dataset.cart; if (!state.cart.includes(id)) { state.cart.push(id); save(); } toast("Im Warenkorb ✓"); }

@@ -88,7 +88,7 @@ erDiagram
   USER ||--o{ SWAP : "schlägt vor"
   USER ||--o{ REVIEW : "schreibt/erhält"
   USER ||--o{ SAVED_SEARCH : hat
-  USER ||--o{ FAVORITE : merkt
+  USER ||--o{ FAVORITE : "Wishlist"
   USER ||--|| WALLET : hat
   LISTING ||--o{ LISTING_PHOTO : hat
   LISTING ||--o{ OFFER : "Preisvorschlag"

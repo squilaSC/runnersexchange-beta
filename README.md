@@ -15,7 +15,7 @@ python -m http.server 8080   # → http://localhost:8080
 - `js/app.js` – SPA mit Hash-Routing, alle Seiten
 
 ## Seiten
-Start · Marktplatz (Filter/Sortierung) · Artikel (Galerie, Preisvorschlag) · Tauschbörse (Größen-Matching) · Tausch vorschlagen (Aufpreis-Rechner) · Verkaufen (5-Schritt-Wizard) · Warenkorb · Kasse · Bestätigung · Merkliste · Konto (Übersicht, Inserate, Tausch, Bestellungen, Nachrichten, Einstellungen) · Nachrichten/Chat · Verkäuferprofil · So geht's · Gebühren (Rechner) · FAQ · Größenrechner · Rechtliches
+Start · Marktplatz (Filter/Sortierung) · Artikel (Galerie, Preisvorschlag) · Tauschbörse (Größen-Matching) · Tausch vorschlagen (Aufpreis-Rechner) · Verkaufen (5-Schritt-Wizard) · Warenkorb · Kasse · Bestätigung · Wishlist · Konto (Übersicht, Inserate, Tausch, Bestellungen, Nachrichten, Einstellungen) · Nachrichten/Chat · Verkäuferprofil · So geht's · Gebühren (Rechner) · FAQ · Größenrechner · Rechtliches
 
 ## Erlösmodell (in `FEES` anpassbar)
 | Quelle | Wert |
@@ -25,7 +25,7 @@ Start · Marktplatz (Filter/Sortierung) · Artikel (Galerie, Preisvorschlag) · 
 | Tauschgebühr | 2,49 € pro Person |
 | Boost | 1,99 € / 7 Tage |
 
-Warenkorb, Merkliste und eigene Inserate werden nur zu Demozwecken im `localStorage` gehalten.
+Warenkorb, Wishlist und eigene Inserate werden nur zu Demozwecken im `localStorage` gehalten.
 
 ## Bildnachweise
 Kategorie-Fotos in `img/cat/` von [Unsplash](https://unsplash.com/license) (kostenlos, auch kommerziell nutzbar, Nennung freiwillig). Fotograf:innen und Links stehen in `img/cat/CREDITS.json`.
