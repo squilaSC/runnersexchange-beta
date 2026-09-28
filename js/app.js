@@ -42,6 +42,11 @@
 
   /* ---------- Schuh-Illustration (SVG, farbvariabel) ---------- */
   function shoe(l, variant = 0) {
+    // Echtes Foto, falls vorhanden; Varianten = andere Bildausschnitte für die Galerie
+    if (l.photo) {
+      const crop = ["", "transform:scale(1.35);transform-origin:30% 60%", "transform:scale(1.6);transform-origin:70% 40%", "transform:scale(1.25);transform-origin:50% 90%"][variant] || "";
+      return `<img class="shoe-photo" src="${l.photo}" alt="${esc(l.brand + " " + l.model)}" loading="lazy" style="${crop}">`;
+    }
     const [a, b] = l.colors;
     if (l.apparel) return `<svg class="shoe-svg" viewBox="0 0 200 160"><path d="M60 20 L85 12 Q100 24 115 12 L140 20 L170 50 L150 66 L140 56 L140 148 L60 148 L60 56 L50 66 L30 50Z" fill="${a}" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"/><path d="M60 100 H140" stroke="${b}" stroke-width="10"/></svg>`;
     if (l.gear) return `<svg class="shoe-svg" viewBox="0 0 200 160"><rect x="20" y="66" width="160" height="28" rx="14" fill="${a}" stroke="#1a1a1a" stroke-width="3"/><rect x="72" y="52" width="56" height="56" rx="14" fill="${b}" stroke="#1a1a1a" stroke-width="3"/><path d="M84 82 h8 l5 -10 l6 20 l5 -10 h8" stroke="#fff" stroke-width="3" fill="none"/></svg>`;
@@ -317,7 +322,7 @@
     const stepOf = c => c === "neu" || c === "anprobiert" ? c : "getragen";
     const idx = steps.findIndex(([k]) => k === stepOf(l.cond));
     const cond = `<div class="wp-block">
-        <div class="wp-head"><small>Zustand</small><b>${CONDITIONS[l.cond].label}</b></div>
+        <div class="wp-head"><small>Zustand</small></div>
         <ol class="cond-steps" style="--p:${idx / (steps.length - 1)}">${steps.map(([k, n], i) => `<li class="${i < idx ? "done" : i === idx ? "on" : ""}"><span class="dot"></span><span class="lbl">${n}</span></li>`).join("")}</ol>
       </div>`;
     if (!isShoe(l)) return `<div class="wear-panel">${cond}</div>`;
@@ -777,7 +782,7 @@
     (async () => {
       await sleep(1800);
       for (let w = 1; w < words.length; w++) {
-        for (let t = el.textContent; t.length; await sleep(45)) { t = t.slice(0, -1); if (!el.isConnected) return; el.textContent = t; }
+        for (let t = el.textContent; t.length; await sleep(45)) { t = t.slice(0, -1); if (!el.isConnected) return; el.textContent = t || "\u200b"; } // leere Zeile behält ihre Höhe
         await sleep(300);
         for (let n = 1; n <= words[w].length; await sleep(85 + Math.random() * 70)) { if (!el.isConnected) return; el.textContent = words[w].slice(0, n++); }
         if (w < words.length - 1) await sleep(1400);

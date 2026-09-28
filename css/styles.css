@@ -63,8 +63,10 @@ p{margin:0 0 1em}
 .caret.caret-done{animation:none;opacity:0;transition:opacity .6s}
 @media (prefers-reduced-motion:reduce){.caret{display:none}}
 .hero .lead{font-size:1.15rem;color:var(--muted);max-width:540px}
-.searchbar{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:var(--shadow);max-width:560px;margin:24px 0}
-.searchbar input{flex:1;border:0;background:none;padding:0 16px;font:inherit;outline:none;min-width:0}
+.searchbar{transition:box-shadow .2s;display:flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:var(--shadow);max-width:560px;margin:24px 0}
+.searchbar input,.searchbar input[type=search]{flex:1;border:0;background:transparent;border-radius:999px;padding:0 16px;font:inherit;outline:none;min-width:0}
+.searchbar input:focus{outline:none}
+.searchbar:focus-within{box-shadow:var(--shadow),0 0 0 2px var(--accent)}
 .hero-stats{display:flex;gap:32px;margin-top:20px}
 .hero-stats b{font-family:var(--display);font-size:1.6rem;display:block}
 .hero-art{position:relative;background:#e9e3da;border-radius:28px;aspect-ratio:1/0.9;display:grid;place-items:center;overflow:hidden}
@@ -111,6 +113,12 @@ p{margin:0 0 1em}
 .card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
 .card-img{aspect-ratio:4/3;display:grid;place-items:center;position:relative}
 .card-img .shoe-svg{width:78%}
+.shoe-photo{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:inherit}
+.card-img .shoe-photo,.gallery-main .shoe-photo,.thumb .shoe-photo,.list-thumb .shoe-photo{position:absolute;inset:0;height:100%;aspect-ratio:auto;border-radius:0}
+.card-img,.gallery-main,.thumb,.list-thumb{position:relative;overflow:hidden}
+.card:hover .card-img .shoe-photo{transform:scale(1.04)}
+.card-img .shoe-photo{transition:transform .5s ease}
+.card-tags,.fav{z-index:2}
 .card-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px;flex:1}
 .card-brand{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
 .card-title{font-weight:600;line-height:1.3}
